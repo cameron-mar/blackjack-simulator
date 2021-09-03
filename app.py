@@ -1,356 +1,70 @@
-from enum import Enum
+import random
+from strategies import hard_totals, soft_totals, splits
+
+CARDS = ["A", "K", "Q", "J", 10, 9, 8, 7, 6, 5, 4, 3, 2]
+DECK_SIZE = 52
+NUMBER_OF_DECKS = 8
 
 
-class Move(Enum):
-    Double = "Double"
-    Hit = "Hit"
-    Split = "Split"
-    SplitDouble = "Split if Double After Split"
-    Stand = "Stand"
-    Surrender = "Surrender"
+def construct_deck():
+    one_deck = CARDS * 4
+    return shuffle_deck(NUMBER_OF_DECKS * one_deck)
 
 
-hard_totals = {
-    17: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Stand,
-        "8": Move.Stand,
-        "9": Move.Stand,
-        "10": Move.Stand,
-        "A": Move.Stand
-    },
-    16: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Surrender,
-        "10": Move.Surrender,
-        "A": Move.Surrender
-    },
-    15: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Surrender,
-        "A": Move.Hit
-    },
-    14: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    13: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    12: {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    11: {
-        "2": Move.Double,
-        "3": Move.Double,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Double,
-        "8": Move.Double,
-        "9": Move.Double,
-        "10": Move.Double,
-        "A": Move.Double
-    },
-    10: {
-        "2": Move.Double,
-        "3": Move.Double,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Double,
-        "8": Move.Double,
-        "9": Move.Double,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    9: {
-        "2": Move.Hit,
-        "3": Move.Double,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    8: {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Hit,
-        "5": Move.Hit,
-        "6": Move.Hit,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    }
-}
+def deal_card(deck: list):
+    return deck.pop(0)
 
-soft_totals = {
-    20: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Stand,
-        "8": Move.Stand,
-        "9": Move.Stand,
-        "10": Move.Stand,
-        "A": Move.Stand
-    },
-    19: {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Double,
-        "7": Move.Stand,
-        "8": Move.Stand,
-        "9": Move.Stand,
-        "10": Move.Stand,
-        "A": Move.Stand
-    },
-    18: {
-        "2": Move.Double,
-        "3": Move.Double,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Stand,
-        "8": Move.Stand,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    17: {
-        "2": Move.Hit,
-        "3": Move.Double,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    16: {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    15: {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Double,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    14: {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Hit,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    13: {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Hit,
-        "5": Move.Double,
-        "6": Move.Double,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    }
-}
 
-splits = {
-    "A": {
-        "2": Move.Split,
-        "3": Move.Split,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Split,
-        "8": Move.Split,
-        "9": Move.Split,
-        "10": Move.Split,
-        "A": Move.Split
-    },
-    "10": {
-        "2": Move.Stand,
-        "3": Move.Stand,
-        "4": Move.Stand,
-        "5": Move.Stand,
-        "6": Move.Stand,
-        "7": Move.Stand,
-        "8": Move.Stand,
-        "9": Move.Stand,
-        "10": Move.Stand,
-        "A": Move.Stand
-    },
-    "9": {
-        "2": Move.Split,
-        "3": Move.Split,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Stand,
-        "8": Move.Split,
-        "9": Move.Split,
-        "10": Move.Stand,
-        "A": Move.Stand
-    },
-    "8": {
-        "2": Move.Split,
-        "3": Move.Split,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Split,
-        "8": Move.Split,
-        "9": Move.Split,
-        "10": Move.Split,
-        "A": Move.Split
-    },
-    "7": {
-        "2": Move.Split,
-        "3": Move.Split,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Split,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    "6": {
-        "2": Move.SplitDouble,
-        "3": Move.Split,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    "5": {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Hit,
-        "5": Move.Hit,
-        "6": Move.Hit,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    "4": {
-        "2": Move.Hit,
-        "3": Move.Hit,
-        "4": Move.Hit,
-        "5": Move.SplitDouble,
-        "6": Move.SplitDouble,
-        "7": Move.Hit,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    "3": {
-        "2": Move.SplitDouble,
-        "3": Move.SplitDouble,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Split,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    },
-    "2": {
-        "2": Move.SplitDouble,
-        "3": Move.SplitDouble,
-        "4": Move.Split,
-        "5": Move.Split,
-        "6": Move.Split,
-        "7": Move.Split,
-        "8": Move.Hit,
-        "9": Move.Hit,
-        "10": Move.Hit,
-        "A": Move.Hit
-    }
-}
+def display_player_hand(hand: list):
+    hand_string = ""
+    for card in hand:
+        hand_string += f"{str(card)} "
+    return hand_string
+
+
+def shuffle_deck(deck: list):
+    return random.shuffle(deck)
+
+
+def update_running_count(cards: list, running_count: int):
+    for card in cards:
+        if isinstance(card, str):
+            running_count -= 1
+        if isinstance(card, int):
+            if card < 7:
+                running_count += 1
+            if card == 10:
+                running_count -= 1
+    return running_count
+
+
+def run_game(shoe: list):
+    running_count = 0
+    true_count = running_count / NUMBER_OF_DECKS
+    while True:
+        player_cards = []
+        dealer_cards = []
+        shoe_size = len(shoe)
+        # Check if user wants to continue playing once deck gets to here
+        if shoe_size < DECK_SIZE:
+            continue_play = input("Continue playing?")
+            if continue_play:
+                shoe = construct_deck()
+                continue
+            else:
+                return
+
+        # Deal cards
+        player_cards.append(deal_card(shoe))
+        dealer_cards.append(deal_card(shoe))
+        player_cards.append(deal_card(shoe))
+        dealer_cards.append(deal_card(shoe))
+
+        # Update running count with current cards and dealer's first card
+        running_count = update_running_count(
+            player_cards + dealer_cards[1], running_count)
+
+
+if __name__ == "main":
+    shoe = construct_deck()
+    run_game(shoe)
