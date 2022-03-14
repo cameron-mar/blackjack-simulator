@@ -1,14 +1,4 @@
-from enum import Enum
-
-
-class Move(Enum):
-    Double = "Double"
-    Hit = "Hit"
-    Split = "Split"
-    SplitDouble = "Split if Double After Split"
-    Stand = "Stand"
-    Surrender = "Surrender"
-
+from enums import Move
 
 hard_totals = {
     17: {
